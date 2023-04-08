@@ -1,0 +1,2 @@
+Expected maximum value of root node : 7.5
+Expected maximum reward node : 1

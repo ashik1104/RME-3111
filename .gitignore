@@ -1,0 +1,10 @@
+**/*.pdf
+**/*.vscode
+**/*.idea
+**/*.docx
+**/*.exe
+**/*.o
+**/*Docs_Pdf/
+.git
+
+
