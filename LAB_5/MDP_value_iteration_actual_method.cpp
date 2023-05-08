@@ -2,14 +2,12 @@
 using namespace std;
 
 // MDP value iteration
-// value convergence and policy extraction in a single while loop.
 
 #define fast ios_base::sync_with_stdio(false), cin.tie(0), cout.tie(0)
 #define pii pair<int, int>
 #define pds pair<double, string>
 #define vpii vector<pair<int, int>>
 #define NINF -1e9
-
 #define INF 1e9
 #define eps 1e-4
 
@@ -199,7 +197,49 @@ double calculate_exp_val(pii state, string action)
     return value;
 }
 
-pds Value_and_Policy(pii state)
+double Value_Convergence(pii state)
+{
+    double value = NINF;
+    for (int i = 0; i < 4; i++)
+    {
+        string action = actions[i];
+        if (action == "U⬆")
+        {
+            double exp_val_for_u = calculate_exp_val(state, action);
+            if (exp_val_for_u > value)
+            {
+                value = exp_val_for_u;
+            }
+        }
+        else if (action == "D⬇")
+        {
+            double exp_val_for_d = calculate_exp_val(state, action);
+            if (exp_val_for_d > value)
+            {
+                value = exp_val_for_d;
+            }
+        }
+        else if (action == "R➡")
+        {
+            double exp_val_for_r = calculate_exp_val(state, action);
+            if (exp_val_for_r > value)
+            {
+                value = exp_val_for_r;
+            }
+        }
+        else if (action == "⬅ L")
+        {
+            double exp_val_for_l = calculate_exp_val(state, action);
+            if (exp_val_for_l > value)
+            {
+                value = exp_val_for_l;
+            }
+        }
+    }
+    return value;
+}
+
+string policy_Extraction(pii state)
 {
     double value = NINF;
     string optimal_action = "";
@@ -243,7 +283,8 @@ pds Value_and_Policy(pii state)
             }
         }
     }
-    return {value, optimal_action};
+
+    return optimal_action;
 }
 
 void initialize_grid()
@@ -288,6 +329,7 @@ int main()
     initialize_policy_vector_size();
     all_actions();
 
+    // Iterate until value convergence.
     double loop_breaker = 100;
     while (loop_breaker > eps)
     {
@@ -298,11 +340,23 @@ int main()
             {
                 if (is_valid_state({i, j}))
                 {
-                    pds p = Value_and_Policy({i, j});
-                    loop_breaker = max(loop_breaker, abs(p.first - grid[i][j]));
-                    grid[i][j] = p.first;
-                    policy[i][j] = p.second;
+                    double value = Value_Convergence({i, j});
+                    loop_breaker = max(loop_breaker, abs(value - grid[i][j]));
+                    grid[i][j] = value;
                 }
+            }
+        }
+    }
+
+    // After convergence of values extract the policies for all states.
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            if (is_valid_state({i, j}))
+            {
+                string p = policy_Extraction({i, j});
+                policy[i][j] = p;
             }
         }
     }

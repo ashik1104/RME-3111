@@ -1,0 +1,5 @@
+1. Adimissible heuristic is enough to finding optimal path in a tree.
+   Consistent heuristic is not needed for tree.
+
+2. But for graphs heuristic should be Adimissible and Consistent.
+   Otherwise A* will not give the optimal path.

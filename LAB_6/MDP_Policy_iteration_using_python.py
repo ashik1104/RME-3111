@@ -3,8 +3,9 @@ import numpy as np
 
 eps = 1e-4
 GAMMA = 0.9
+temp_grid = [[0, 0, 0, 1], [0, None, 0, -1], [0, 0, 0, 0]]
 grid = [[0, 0, 0, 1], [0, None, 0, -1], [0, 0, 0, 0]]
-policy = [[None, None, None, None], [None, None, None, None], [None, None, None, None]]
+policy = [["U⬆", "U⬆", "U⬆", "U⬆"], ["U⬆", "U⬆", "U⬆", "U⬆"], ["U⬆", "U⬆", "U⬆", "U⬆"]]
 actions = {0: "U⬆", 1: "D⬇", 2: "R➡", 3: "⬅ L"}
 
 
@@ -104,7 +105,33 @@ def calculate_exp_val(state, action):
     return value
 
 
-def Value_and_Policy(state):
+def Value_Convergence(state):
+    value = -1e9
+    action = policy[state[0]][state[1]]
+    if action == "U⬆":
+        exp_val_for_u = calculate_exp_val(state, action)
+        if exp_val_for_u > value:
+            value = exp_val_for_u
+
+    elif action == "D⬇":
+        exp_val_for_d = calculate_exp_val(state, action)
+        if exp_val_for_d > value:
+            value = exp_val_for_d
+
+    elif action == "R➡":
+        exp_val_for_r = calculate_exp_val(state, action)
+        if exp_val_for_r > value:
+            value = exp_val_for_r
+
+    elif action == "⬅ L":
+        exp_val_for_l = calculate_exp_val(state, action)
+        if exp_val_for_l > value:
+            value = exp_val_for_l
+
+    return value
+
+
+def Policy_Extraction(state):
     value = -1e9
     optimal_action = None
     for i in range(4):
@@ -130,20 +157,33 @@ def Value_and_Policy(state):
                 value = exp_val_for_l
                 optimal_action = "⬅ L"
 
-    return [value, optimal_action]
+    return optimal_action
 
 
 if __name__ == '__main__':
-    loop_breaker = 100
-    while loop_breaker > eps:
-        loop_breaker = 0
-        for i in range(3):
-            for j in range(4):
-                if is_valid_state([i, j]):
-                    p = Value_and_Policy([i, j])
-                    loop_breaker = max(loop_breaker, abs(p[0] - grid[i][j]))
-                    grid[i][j] = p[0]
-                    policy[i][j] = p[1]
+    policy_changed = True
+    while policy_changed:
+        grid = temp_grid
+        # Loop through until value convergence
+        loop_breaker = 100
+        while loop_breaker > eps:
+            loop_breaker = 0
+            for i in range(3):
+                for j in range(4):
+                    if is_valid_state([i, j]):
+                        value = Value_Convergence([i, j])
+                        loop_breaker = max(loop_breaker, abs(value - grid[i][j]))
+                        grid[i][j] = value
+
+            # Policy Extraction
+            policy_changed = False
+            for i in range(3):
+                for j in range(4):
+                    if is_valid_state([i, j]):
+                        p = Policy_Extraction([i, j])
+                        if p != policy[i][j]:
+                            policy_changed = True
+                        policy[i][j] = p
 
     ar = np.asarray(grid, dtype=np.float32)
     figure, axis = plt.subplots()
@@ -158,6 +198,6 @@ if __name__ == '__main__':
                 txt_display = "%.2f" % grid[i][j] + "\n" + policy[i][j]
 
             text = axis.text(j, i, txt_display,
-                           ha="center", va="center", color="black")
+                             ha="center", va="center", color="black")
 
     plt.show()

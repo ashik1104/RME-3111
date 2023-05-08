@@ -104,7 +104,35 @@ def calculate_exp_val(state, action):
     return value
 
 
-def Value_and_Policy(state):
+def Value_Convergence(state):
+    value = -1e9
+
+    for i in range(4):
+        action = actions[i]
+        if action == "U⬆":
+            exp_val_for_u = calculate_exp_val(state, action)
+            if exp_val_for_u > value:
+                value = exp_val_for_u
+
+        elif action == "D⬇":
+            exp_val_for_d = calculate_exp_val(state, action)
+            if exp_val_for_d > value:
+                value = exp_val_for_d
+
+        elif action == "R➡":
+            exp_val_for_r = calculate_exp_val(state, action)
+            if exp_val_for_r > value:
+                value = exp_val_for_r
+
+        elif action == "⬅ L":
+            exp_val_for_l = calculate_exp_val(state, action)
+            if exp_val_for_l > value:
+                value = exp_val_for_l
+
+    return value
+
+
+def Policy_Extraction(state):
     value = -1e9
     optimal_action = None
     for i in range(4):
@@ -130,20 +158,28 @@ def Value_and_Policy(state):
                 value = exp_val_for_l
                 optimal_action = "⬅ L"
 
-    return [value, optimal_action]
+    return optimal_action
 
 
 if __name__ == '__main__':
     loop_breaker = 100
+
+    # Loop through until value convergence
     while loop_breaker > eps:
         loop_breaker = 0
         for i in range(3):
             for j in range(4):
                 if is_valid_state([i, j]):
-                    p = Value_and_Policy([i, j])
-                    loop_breaker = max(loop_breaker, abs(p[0] - grid[i][j]))
-                    grid[i][j] = p[0]
-                    policy[i][j] = p[1]
+                    value = Value_Convergence([i, j])
+                    loop_breaker = max(loop_breaker, abs(value - grid[i][j]))
+                    grid[i][j] = value
+
+        # Policy Extraction
+        for i in range(3):
+            for j in range(4):
+                if is_valid_state([i, j]):
+                    p = Policy_Extraction([i, j])
+                    policy[i][j] = p
 
     ar = np.asarray(grid, dtype=np.float32)
     figure, axis = plt.subplots()
@@ -158,6 +194,6 @@ if __name__ == '__main__':
                 txt_display = "%.2f" % grid[i][j] + "\n" + policy[i][j]
 
             text = axis.text(j, i, txt_display,
-                           ha="center", va="center", color="black")
+                             ha="center", va="center", color="black")
 
     plt.show()

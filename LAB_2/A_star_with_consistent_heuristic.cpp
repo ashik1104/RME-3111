@@ -5,9 +5,9 @@ using namespace std;
 // A* Search algorithm //
 /* Admissible and consistent heuristic is mandatory for this algorithm. */
 /* As heuristic is consistent we don't need to explore a node more than one time.
-                              We have done it using visited array */
+                              We have done it using visited array. */
 
-/* As consistent heuristic is mandatory for this algorithm, it creates wrong output when
+/* As consistent heuristic is mandatory for this algorithm, it will create wrong output when
                               heuristic is not consistent. */
 
 vector<int> heuristic(1000000);

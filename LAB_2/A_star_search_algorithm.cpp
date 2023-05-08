@@ -2,7 +2,10 @@
 #include "priority_queue.h"
 using namespace std;
 
-// A* Search algorithm //
+// We can't find optimal path in a graph without consistent 
+// heuristic, but we can explore a node more than one time. By doing this
+// we can find the optimal path in graph without consistent heuristic.
+// But it violates the main idea of A* search.
 
 // Only admissible heuristic is enough for finding shortest path for this algorithm.
 // Consistent heuristic is not necessary.
